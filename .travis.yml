@@ -37,7 +37,7 @@ jobs:
       script: ./gradlew checkstyleMain
     - stage: Analysis
       name: Sonarqube
-      if: branch = master
+      if: branch = master AND NOT type = pull_request
       script: ./gradlew sonarqube -x test
     - stage: Release
       name: Publish to Gradle
