@@ -12,10 +12,10 @@ cache:
 
 before_script:
   - if [ -z "$TRAVIS_TAG" ]; then
-    export USE_CI_VERSION="true"
-    export CI_VERSION=$TRAVIS_TAG
+    export USE_CI_VERSION="true";
+    export CI_VERSION=$TRAVIS_TAG;
     else
-    export USE_CI_VERSION="false"
+    export USE_CI_VERSION="false";
     fi
 
 stages:
