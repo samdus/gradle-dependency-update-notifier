@@ -40,7 +40,8 @@ public class GitlabNotifierTask extends BaseTask {
         final String gradleIssue = getGradleIssue(dependencies);
         if(!outdatedIssues.isEmpty() || StringUtils.isNotEmpty(gradleIssue)) {
             final GitlabIssue gitlabIssue = buildIssue(outdatedIssues, gradleIssue);
-            client.createIssue(gitlabIssue);
+            final GitlabIssue issue = client.createIssue(gitlabIssue);
+            getLogger().lifecycle("Created GitLab dependency update issue: {}", issue.getWebUrl());
         }
     }
 
