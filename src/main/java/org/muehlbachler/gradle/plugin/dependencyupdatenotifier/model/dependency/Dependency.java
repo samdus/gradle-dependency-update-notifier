@@ -1,11 +1,15 @@
 package org.muehlbachler.gradle.plugin.dependencyupdatenotifier.model.dependency;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Dependency {
+    @EqualsAndHashCode.Include
     String group;
+    @EqualsAndHashCode.Include
     String name;
     String version;
     String projectUrl;

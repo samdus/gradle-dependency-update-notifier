@@ -18,6 +18,7 @@ import java.lang.reflect.ParameterizedType;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(makeFinal = true)
@@ -43,7 +44,7 @@ public class GitlabClient extends BaseClient {
                 .addHeader(TOKEN, config.getToken());
     }
 
-    /*public List<GitlabIssue> getIssues() throws IOException {
+    public List<GitlabIssue> getIssues() throws IOException {
         final Request request = getRequestBuilder()
                 .url(String.format("%s/projects/%s/issues?labels=%s&state=opened", config.getUrl(), config.getProjectId(), config.getLabel()))
                 .build();
@@ -54,8 +55,10 @@ public class GitlabClient extends BaseClient {
         }
         final List<GitlabIssue> gitlabIssues = issueListAdapter.fromJson(response.body().source());
         response.body().close();
-        return gitlabIssues;
-    }*/
+        return gitlabIssues.stream()
+                .filter(gitlabIssue -> gitlabIssue.getAssignees().isEmpty())
+                .collect(Collectors.toList());
+    }
 
     public GitlabIssue createIssue(final GitlabIssue issue) throws IOException {
         final String json = issueAdapter.toJson(issue);
