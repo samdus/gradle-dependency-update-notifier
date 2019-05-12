@@ -73,7 +73,7 @@ public class GitlabNotifierTask extends BaseTask {
     }
 
     private GitlabIssue buildIssue(final List<String> outdatedIssues, final String gradleIssue) {
-        final long count = outdatedIssues.size() + (StringUtils.isNotEmpty(gradleIssue) ? 1 : 0);
+        final long count = outdatedIssues.size() + (StringUtils.isNotEmpty(gradleIssue) ? 1L : 0L);
         final String title = config.getTitle()
                 .replaceAll("%count", Long.toString(count));
         String body = String.join("\n", outdatedIssues);
