@@ -112,7 +112,7 @@ gradlePlugin {
 pluginBundle {
 	website = 'https://muehlbachler.org'
 	vcsUrl = 'https://github.com/muhlba91/gradle-dependency-update-notifier'
-	tags = ['versioning', 'libraries", "update", "dependencies']
+	tags = ['versioning', 'libraries', 'update', 'dependencies']
 
 	plugins {
 		gradleDependencyUpdateNotifierPlugin {
