@@ -26,6 +26,7 @@ public class GitlabNotifierTask extends BaseTask {
     GitlabNotifierConfig config;
     GitlabClient client;
 
+    @Override
     public void init() {
         super.init();
         client = new GitlabClient(config, getLogger());

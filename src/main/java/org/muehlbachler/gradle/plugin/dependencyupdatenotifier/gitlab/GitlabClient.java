@@ -3,6 +3,7 @@ package org.muehlbachler.gradle.plugin.dependencyupdatenotifier.gitlab;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldDefaults;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -18,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Objects;
 
+@EqualsAndHashCode(callSuper = true)
 @FieldDefaults(makeFinal = true)
 public class GitlabClient extends BaseClient {
     public static final String TOKEN = "private-token";

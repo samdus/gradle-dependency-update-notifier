@@ -44,7 +44,7 @@ public class DependencyUpdateNotifierPluginTest {
 
     @BeforeEach
     void setup() throws IOException {
-        Assertions.assertThat(Files.isDirectory(testProjectDir));
+        Assertions.assertThat(Files.isDirectory(testProjectDir)).isTrue();
 
         buildFile = Files.createFile(testProjectDir.resolve("build.gradle")).toFile();
         propertiesFile = Files.createFile(testProjectDir.resolve("gradle.properties")).toFile();
