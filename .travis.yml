@@ -33,6 +33,7 @@ jobs:
       script: ./gradlew jacocoCoverageReport jacocoTestReport jacocoTestCoverageVerification printCoverage -x checkstyleMain -x checkstyleTest
     - stage: Analysis
       name: Code Verification
+      if: tag IS blank
       script: ./gradlew checkstyleMain
     - stage: Analysis
       name: Sonarqube
@@ -41,4 +42,4 @@ jobs:
     - stage: Release
       name: Publish to Gradle
       if: tag IS present
-      script: gradle publishPlugins -Pgradle.publish.key=$GRADLE_PUBLISH_KEY -Pgradle.publish.secret=$GRADLE_PUBLISH_SECRET
+      script: ./gradlew publishPlugins -Pgradle.publish.key=$GRADLE_PUBLISH_KEY -Pgradle.publish.secret=$GRADLE_PUBLISH_SECRET

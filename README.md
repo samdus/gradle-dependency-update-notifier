@@ -78,6 +78,8 @@ The plugin comes with a task which publishes the issue to GitLab:
 ./gradlew gitlabDependencyUpdateNotifier
 ``` 
 
+**Attention!** Make sure to *execute the versions plugin task before*.
+
 
 ## Contributions
 
