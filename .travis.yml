@@ -1,0 +1,41 @@
+language: java
+install: true
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - build
+
+before_script:
+  - if [ -z "$TRAVIS_TAG" ]; then
+    export USE_CI_VERSION="true"
+    export CI_VERSION=$TRAVIS_TAG
+    else
+    export USE_CI_VERSION="false"
+    fi
+
+stages:
+  - Test
+  - Analysis
+  - Release
+
+jobs:
+  include:
+    - stage: Test
+      name: Tests and Coverage
+      script: ./gradlew jacocoCoverageReport jacocoTestReport jacocoTestCoverageVerification printCoverage -x checkstyleMain -x checkstyleTest
+    - stage: Analysis
+      name: Code Verification
+      script: ./gradlew checkstyleMain
+    - stage: Analysis
+      name: Sonarqube
+      if: branch = master
+      script: ./gradlew sonarqube -x test
+    - stage: Release
+      name: Publis to Gradle
+      if: tag IS present
+      script: gradle publishPlugins -Pgradle.publish.key=$GRADLE_PUBLISH_KEY -Pgradle.publish.secret=$GRADLE_PUBLISH_SECRET

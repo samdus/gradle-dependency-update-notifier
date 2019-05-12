@@ -1,0 +1,252 @@
+import io.franzbecker.gradle.lombok.task.DelombokTask
+
+description = 'Gradle Dependency Update Notifier Plugin'
+group = 'org.muehlbachler'
+version = file('VERSION').text.trim()
+
+// gitlab ci versioning support
+ext.environment = System.env.CI_ENVIRONMENT_SLUG ?: 'development'
+if(System.env.USE_CI_VERSION == 'true') {
+	version = System.env.CI_VERSION
+}
+System.setProperty('ENVIRONMENT', environment)
+System.setProperty('VERSION', rootProject.version.toString())
+
+ext {
+	lombokVersion = '1.18.8'
+	moshiVersion = '1.8.0'
+	okHttpVersion = '3.14.1'
+
+	apacheCommonsVersion = '3.9'
+	apacheCommonsCollectionsVersion = '4.3'
+	jaxbVersion = '2.3.1'
+
+	junitVersion = '5.4.2'
+	junitPlatformRunnerVersion = '1.4.2'
+	assertJVersion = '3.12.2'
+	log4jVersion = '2.11.2'
+	hoverflyVersion = '0.12.0'
+}
+
+buildscript {
+	ext {
+		aptVersion = '0.21'
+
+		lombokPluginVersion = '3.0.0'
+
+		sonarqubePluginVersion = '2.7.1'
+		printCoverageVersion = '2.0.0'
+
+		gradlePublishPluginVersion = '0.10.1'
+	}
+	repositories {
+		mavenCentral()
+		jcenter()
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+	}
+	dependencies {
+		classpath("net.ltgt.gradle:gradle-apt-plugin:${aptVersion}")
+
+		classpath("io.franzbecker:gradle-lombok:${lombokPluginVersion}")
+		classpath("org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:${sonarqubePluginVersion}")
+		classpath("gradle.plugin.de.jansauer.printcoverage:printcoverage:${printCoverageVersion}")
+
+		classpath("com.gradle.publish:plugin-publish-plugin:${gradlePublishPluginVersion}")
+	}
+}
+
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'com.gradle.plugin-publish'
+apply plugin: 'net.ltgt.apt'
+apply plugin: 'io.franzbecker.gradle-lombok'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'jacoco'
+apply plugin: 'checkstyle'
+apply plugin: 'io.franzbecker.gradle-lombok'
+apply plugin: 'org.sonarqube'
+apply plugin: "de.jansauer.printcoverage"
+
+targetCompatibility = 1.9
+sourceCompatibility = 1.9
+
+repositories {
+	mavenCentral()
+	jcenter()
+}
+
+dependencies {
+	implementation("org.apache.commons:commons-lang3:${apacheCommonsVersion}")
+	implementation("org.apache.commons:commons-collections4:${apacheCommonsCollectionsVersion}")
+	implementation("javax.xml.bind:jaxb-api:${jaxbVersion}")
+	implementation("com.squareup.moshi:moshi:${moshiVersion}")
+	implementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
+
+	compileOnly('org.projectlombok:lombok')
+
+	testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+	testImplementation("org.junit.platform:junit-platform-runner:${junitPlatformRunnerVersion}")
+	testImplementation("org.assertj:assertj-core:${assertJVersion}")
+
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+	testRuntimeOnly("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+	testRuntimeOnly("org.apache.logging.log4j:log4j-jul:${log4jVersion}")
+
+	testCompile("io.specto:hoverfly-java-junit5:${hoverflyVersion}")
+	testCompile gradleTestKit()
+}
+
+// gradle plugin configuration
+gradlePlugin {
+	plugins {
+		gradleDependencyUpdateNotifierPlugin {
+			id = 'org.muehlbachler.gradle.plugin.dependency-update-notifier'
+			implementationClass = 'org.muehlbachler.gradle.plugin.dependencyupdatenotifier.DependencyUpdateNotifierPlugin'
+		}
+	}
+}
+
+pluginBundle {
+	website = 'http://www.gradle.org/'
+	vcsUrl = 'https://github.com/muhlba91/gradle-dependency-update-notifier'
+	tags = ['versioning', 'libraries", "update", "dependencies']
+
+	plugins {
+		gradleDependencyUpdateNotifierPlugin {
+			displayName = project.description
+			description = 'Notifies GitLab about new dependency updates. Requires the com.github.ben-manes.versions plugin!'
+		}
+	}
+}
+
+// enable JUnit 5
+test {
+	useJUnitPlatform()
+
+	dependsOn 'cleanTest'
+
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
+
+	afterSuite { desc, result ->
+		if(!desc.parent) {
+			println "\nTest result: ${result.resultType}"
+			println "Test summary: ${result.testCount} tests, " +
+					"${result.successfulTestCount} succeeded, " +
+					"${result.failedTestCount} failed, " +
+					"${result.skippedTestCount} skipped"
+		}
+	}
+}
+
+jacocoTestReport {
+	reports {
+		xml.enabled true
+		csv.enabled true
+		html.destination file("${project.buildDir}/reports/jacoco")
+	}
+
+	afterEvaluate {
+		classDirectories = files(classDirectories.files.collect {
+			fileTree(dir: it,
+					exclude: [
+							'org/muehlbachler/gradle/plugin/dependencyupdatenotifier/model/**',
+					])
+		})
+	}
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			limit {
+				element = 'BUNDLE'
+				counter = 'LINE'
+				excludes = ['org.muehlbachler.gradle.plugin.dependencyupdatenotifier.model.*']
+				minimum = 0.8
+			}
+		}
+
+		rule {
+			limit {
+				element = 'CLASS'
+				counter = 'LINE'
+				excludes = ['org.muehlbachler.gradle.plugin.dependencyupdatenotifier.model.*']
+				minimum = 0.8
+			}
+		}
+	}
+}
+
+printcoverage {
+	coverageType = 'LINE'
+}
+
+lombok {
+	version = lombokVersion
+}
+
+checkstyle {
+	configFile file("${rootProject.projectDir}/checkstyle.xml")
+}
+
+task delombok(type: DelombokTask, dependsOn: compileJava) {
+	ext.outputDir = file("$buildDir/delombok")
+	outputs.dir(outputDir)
+
+	sourceSets.main.java.srcDirs.each {
+		inputs.dir(it)
+		args(it, "-d", outputDir)
+	}
+
+	configurations.implementation.setCanBeResolved(true)
+	classpath += configurations.implementation
+
+	doFirst {
+		outputDir.deleteDir()
+	}
+}
+
+// fix javadoc for lombok and implementation libraries
+javadoc {
+	dependsOn delombok
+
+	source = delombok.outputDir
+	configurations.implementation.setCanBeResolved(true)
+	classpath += configurations.implementation
+
+	failOnError = false
+	options.addBooleanOption('html5', true)
+}
+
+// jacoco coverage report
+task jacocoCoverageReport(type: JacocoMerge, dependsOn: 'check') {
+	executionData project.tasks.withType(Test)
+	destinationFile file("${project.buildDir}/jacoco/jacoco.exec")
+}
+
+// checkstyle html and xml reports
+tasks.withType(Checkstyle) {
+	reports {
+		xml.enabled true
+	}
+}
+
+// sonarqube
+ext.sonarHostUrl = System.env.SONAR_HOST_URL ?: ''
+ext.sonarLogin = System.env.SONAR_LOGIN ?: ''
+System.setProperty('sonar.host.url', sonarHostUrl)
+System.setProperty('sonar.login', sonarLogin)
+sonarqube {
+	properties {
+		property "sonar.organization", "muhlba91-github"
+		property "sonar.projectKey", "org.muehlbachler.gradle.plugin.dependency-update-notifier"
+		property "sonar.projectName", rootProject.name
+		property "sonar.jacoco.reportPaths", "${project.buildDir}/jacoco/jacoco.exec"
+		property "sonar.exclusions", "**/src/main/java/org/muehlbachler/gradle/plugin/dependencyupdatenotifier/model/**/*.java"
+	}
+}

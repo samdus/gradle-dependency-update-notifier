@@ -1,0 +1,74 @@
+{
+  "current": {
+    "dependencies": [
+      {
+        "group": "net.ltgt.gradle",
+        "version": "0.21",
+        "projectUrl": null,
+        "name": "gradle-apt-plugin"
+      },
+      {
+        "group": "org.apache.commons",
+        "version": "4.3",
+        "projectUrl": "http://commons.apache.org/proper/commons-collections/",
+        "name": "commons-collections4"
+      },
+      {
+        "group": "org.apache.logging.log4j",
+        "version": "2.11.2",
+        "projectUrl": "https://logging.apache.org/log4j/2.x/",
+        "name": "log4j-core"
+      },
+      {
+        "group": "org.apache.logging.log4j",
+        "version": "2.11.2",
+        "projectUrl": "https://logging.apache.org/log4j/2.x/",
+        "name": "log4j-jul"
+      }
+    ],
+    "count": 4
+  },
+  "gradle": {
+    "current": {
+      "version": "5.4.1",
+      "reason": "",
+      "isUpdateAvailable": true,
+      "isFailure": false
+    },
+    "nightly": {
+      "version": "5.5-20190510000040+0000",
+      "reason": "",
+      "isUpdateAvailable": false,
+      "isFailure": false
+    },
+    "enabled": true,
+    "releaseCandidate": {
+      "version": "",
+      "reason": "update check succeeded: no release available",
+      "isUpdateAvailable": false,
+      "isFailure": false
+    },
+    "running": {
+      "version": "4.10.2",
+      "reason": "",
+      "isUpdateAvailable": false,
+      "isFailure": false
+    }
+  },
+  "exceeded": {
+    "dependencies": [
+    ],
+    "count": 0
+  },
+  "outdated": {
+    "dependencies": [
+    ],
+    "count": 0
+  },
+  "unresolved": {
+    "dependencies": [
+    ],
+    "count": 0
+  },
+  "count": 5
+}

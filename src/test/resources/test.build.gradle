@@ -1,0 +1,20 @@
+plugins {
+	id 'java-library'
+	id 'org.muehlbachler.gradle.plugin.dependency-update-notifier'
+}
+
+repositories {
+	mavenCentral()
+	jcenter()
+}
+
+dependencyUpdateNotifier {
+	json = "report.json"
+	gitlab {
+		url = "http://gitlab.test"
+		projectId = 1
+		token = "token"
+		label = "label"
+		title = "title"
+	}
+}
