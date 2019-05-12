@@ -15,6 +15,6 @@ dependencyUpdateNotifier {
 		projectId = 1
 		token = "token"
 		label = "label"
-		title = "title"
+		title = "%title"
 	}
 }

@@ -9,6 +9,7 @@ import io.specto.hoverfly.junit.dsl.RequestMatcherBuilder;
 import io.specto.hoverfly.junit.dsl.ResponseCreators;
 import io.specto.hoverfly.junit5.HoverflyExtension;
 import okio.Okio;
+import org.apache.commons.lang3.ObjectUtils;
 import org.assertj.core.api.Assertions;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
@@ -66,6 +67,28 @@ public class DependencyUpdateNotifierPluginTest {
     }
 
     @Test
+    void shouldCreateIssueInterpolateCount(final Hoverfly hoverfly) throws IOException {
+        initHoverfly(hoverfly, "shouldCreateIssueInterpolateCount", "title (%count)");
+
+        final BuildResult result = executeRunner();
+        Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
+        hoverfly.verifyAll();
+    }
+
+    @Test
+    void shouldCreateGradleIssueInterpolateCount(final Hoverfly hoverfly) throws IOException {
+        initHoverfly(hoverfly, "shouldCreateGradleIssueInterpolateCount", "title (%count)");
+
+        final BuildResult result = executeRunner();
+        Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
+        hoverfly.verifyAll();
+    }
+
+    @Test
     void shouldCreateIssueWithGradle(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldCreateIssueWithGradle");
 
@@ -100,7 +123,7 @@ public class DependencyUpdateNotifierPluginTest {
 
     @Test
     void shouldNotCreateIssueForGradleNightly() throws IOException {
-        generateBuildFile(0);
+        generateBuildFile(0, null);
         copyReportJson("shouldNotCreateIssueForGradleNightly");
 
         final BuildResult result = executeRunner();
@@ -133,7 +156,7 @@ public class DependencyUpdateNotifierPluginTest {
 
     @Test
     void shouldFailWithoutReportFile() throws IOException {
-        generateBuildFile(0);
+        generateBuildFile(0, null);
 
         final BuildResult result = executeFailedRunner();
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
@@ -179,23 +202,27 @@ public class DependencyUpdateNotifierPluginTest {
     }
 
     private void initHoverfly(final Hoverfly hoverfly, final String testName) throws IOException {
+        initHoverfly(hoverfly, testName, null);
+    }
+
+    private void initHoverfly(final Hoverfly hoverfly, final String testName, final String title) throws IOException {
         hoverfly.simulate(SimulationSource.dsl(getHoverflyRequestMatcherBuilder(testName)
                 .willReturn(ResponseCreators
                         .success(readResource("hoverfly/response.json"), "application/json"))));
 
-        prepareBuildDir(hoverfly, testName);
+        prepareBuildDir(hoverfly, testName, title);
     }
 
     private void initFailedHoverfly(final Hoverfly hoverfly, final String testName) throws IOException {
         hoverfly.simulate(SimulationSource.dsl(getHoverflyRequestMatcherBuilder(testName)
                 .willReturn(ResponseCreators.forbidden())));
 
-        prepareBuildDir(hoverfly, testName);
+        prepareBuildDir(hoverfly, testName, null);
     }
 
-    private void prepareBuildDir(final Hoverfly hoverfly, final String testName) throws IOException {
+    private void prepareBuildDir(final Hoverfly hoverfly, final String testName, final String title) throws IOException {
         final int proxyPort = hoverfly.getHoverflyConfig().getProxyPort();
-        generateBuildFile(proxyPort);
+        generateBuildFile(proxyPort, title);
         copyReportJson(testName);
     }
 
@@ -216,8 +243,9 @@ public class DependencyUpdateNotifierPluginTest {
         writeFile(reportJson, reportJsonContent);
     }
 
-    private void generateBuildFile(final int proxyPort) throws IOException {
-        final String buildFileContent = readResource("test.build.gradle");
+    private void generateBuildFile(final int proxyPort, final String title) throws IOException {
+        final String buildFileContent = readResource("test.build.gradle")
+                .replaceAll("%title", ObjectUtils.defaultIfNull(title, "title"));
         writeFile(buildFile, buildFileContent);
 
         if(proxyPort > 0) {

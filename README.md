@@ -8,6 +8,12 @@ Link to the Gradle Plugin Registry: [https://plugins.gradle.org/plugin/org.muehl
 ## Project Status
 
 [![Build Status](https://travis-ci.org/muhlba91/gradle-dependency-update-notifier.svg?branch=master)](https://travis-ci.org/muhlba91/gradle-dependency-update-notifier)
+[![Gradle Plugin Portal](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/org/muehlbachler/gradle/plugin/org.muehlbachler.gradle.plugin.dependency-update-notifier/maven-metadata.xml.svg?label=Gradle%20Plugin)](https://plugins.gradle.org/plugin/org.muehlbachler.gradle.plugin.dependency-update-notifier)
+[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=alert_status)](https://sonarcloud.io/dashboard?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
+[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=security_rating)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
+[![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
+[![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
+[![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
 
 
 ## Usage
