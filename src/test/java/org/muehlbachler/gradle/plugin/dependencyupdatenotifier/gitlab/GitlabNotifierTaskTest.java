@@ -1,4 +1,4 @@
-package org.muehlbachler.gradle.plugin.dependencyupdatenotifier;
+package org.muehlbachler.gradle.plugin.dependencyupdatenotifier.gitlab;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -8,54 +8,52 @@ import io.specto.hoverfly.junit.dsl.HoverflyDsl;
 import io.specto.hoverfly.junit.dsl.RequestMatcherBuilder;
 import io.specto.hoverfly.junit.dsl.ResponseCreators;
 import io.specto.hoverfly.junit.dsl.StubServiceBuilder;
-import io.specto.hoverfly.junit5.HoverflyExtension;
-import okio.Okio;
 import org.apache.commons.lang3.ObjectUtils;
 import org.assertj.core.api.Assertions;
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
-import org.muehlbachler.gradle.plugin.dependencyupdatenotifier.gitlab.GitlabClient;
-import org.muehlbachler.gradle.plugin.dependencyupdatenotifier.gitlab.GitlabNotifierTask;
+import org.muehlbachler.gradle.plugin.dependencyupdatenotifier.TestBase;
 import org.muehlbachler.gradle.plugin.dependencyupdatenotifier.model.gitlab.issue.GitlabIssue;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-@ExtendWith(HoverflyExtension.class)
-public class DependencyUpdateNotifierPluginTest {
-    @TempDir
-    public Path testProjectDir;
-    File buildFile;
-    File propertiesFile;
-    File reportJson;
-
+public class GitlabNotifierTaskTest extends TestBase {
     final JsonAdapter<GitlabIssue> gitlabIssueAdapter = new Moshi.Builder().build().adapter(GitlabIssue.class);
 
     @BeforeEach
     void setup() throws IOException {
-        Assertions.assertThat(Files.isDirectory(testProjectDir)).isTrue();
+        testName = "GitlabNotifierTaskTest";
 
-        buildFile = Files.createFile(testProjectDir.resolve("build.gradle")).toFile();
-        propertiesFile = Files.createFile(testProjectDir.resolve("gradle.properties")).toFile();
-        reportJson = Files.createFile(testProjectDir.resolve("report.json")).toFile();
+        super.init();
     }
 
     @Test
     void shouldCreateSimpleIssue(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldCreateSimpleIssue");
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
+        Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
+        hoverfly.verifyAll();
+    }
+
+    @Test
+    void shouldCreateSimpleIssueDefaultPath(final Hoverfly hoverfly) throws IOException {
+        final Path directory = testProjectDir.resolve("build/dependencyUpdates/");
+        Files.createDirectories(directory);
+        reportJson = Files.createFile(directory.resolve("report.json")).toFile();
+        initHoverfly(hoverfly, "shouldCreateSimpleIssueDefaultPath");
+        setupBuildFile(hoverfly.getHoverflyConfig().getProxyPort(), "shouldCreateSimpleIssueDefaultPath.build.gradle", null);
+
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -66,7 +64,7 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldFilterOutSimpleIssue(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldFilterOutSimpleIssue", false, true);
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -77,7 +75,7 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldCreateIssueInterpolateCount(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldCreateIssueInterpolateCount", true, false, "title (%count)");
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -88,7 +86,7 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldCreateGradleIssueInterpolateCount(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldCreateGradleIssueInterpolateCount", true, false, "title (%count)");
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -99,7 +97,7 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldCreateIssueWithGradle(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldCreateIssueWithGradle");
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -110,7 +108,7 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldCreateIssueWithGradleOnly(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldCreateIssueWithGradleOnly");
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -121,7 +119,7 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldFilterOutIssueWithGradleOnly(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldFilterOutIssueWithGradleOnly", false, true);
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -132,7 +130,7 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldCreateIssuePreferGradleStableVersion(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldCreateIssuePreferGradleStableVersion");
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -140,21 +138,21 @@ public class DependencyUpdateNotifierPluginTest {
     }
 
     @Test
-    void shouldNotCreateIssueForGradleNightly() throws IOException {
-        generateBuildFile(0, null);
-        copyReportJson("shouldNotCreateIssueForGradleNightly");
+    void shouldNotCreateIssueForGradleNightly(final Hoverfly hoverfly) throws IOException {
+        initHoverfly(hoverfly, "shouldNotCreateIssueForGradleNightly", false, false);
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
+        hoverfly.verifyAll();
     }
 
     @Test
     void shouldCreateIssueGradleReleaseCandidate(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldCreateIssueGradleReleaseCandidate");
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -165,7 +163,7 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldCreateComplexIssue(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldCreateComplexIssue");
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -176,7 +174,7 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldNotFilterOutNewerVersionAndCreateIssue(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldNotFilterOutNewerVersionAndCreateIssue", true, true);
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -187,7 +185,7 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldMergeAndFilterOutIssues(final Hoverfly hoverfly) throws IOException {
         initHoverfly(hoverfly, "shouldMergeAndFilterOutIssues", false, true);
 
-        final BuildResult result = executeRunner();
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
@@ -196,9 +194,9 @@ public class DependencyUpdateNotifierPluginTest {
 
     @Test
     void shouldFailWithoutReportFile() throws IOException {
-        generateBuildFile(0, null);
+        setupBuildFile(0, null);
 
-        final BuildResult result = executeFailedRunner();
+        final BuildResult result = executeFailedRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.FAILED);
@@ -208,7 +206,7 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldFailWithGitlabCreateApiError(final Hoverfly hoverfly) throws IOException {
         initFailedCreateHoverfly(hoverfly, "shouldFailWithGitlabCreateApiError");
 
-        final BuildResult result = executeFailedRunner();
+        final BuildResult result = executeFailedRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.FAILED);
@@ -219,30 +217,11 @@ public class DependencyUpdateNotifierPluginTest {
     void shouldFailWithGitlabGetIssuesApiError(final Hoverfly hoverfly) throws IOException {
         initFailedGetIssuesHoverfly(hoverfly, "shouldFailWithGitlabGetIssuesApiError");
 
-        final BuildResult result = executeFailedRunner();
+        final BuildResult result = executeFailedRunner(GitlabNotifierTask.NAME);
         Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("outcome", TaskOutcome.FAILED);
         hoverfly.verifyAll();
-    }
-
-    private GradleRunner getRunner() {
-        return GradleRunner.create()
-                .withProjectDir(testProjectDir.toFile())
-                .withArguments(GitlabNotifierTask.NAME)
-                .withDebug(true)
-                .withPluginClasspath()
-                .forwardOutput();
-    }
-
-    private BuildResult executeRunner() {
-        return getRunner()
-                .build();
-    }
-
-    private BuildResult executeFailedRunner() {
-        return getRunner()
-                .buildAndFail();
     }
 
     private RequestMatcherBuilder getHoverflyRequestMatcherBuilder(final String testName) throws IOException {
@@ -261,9 +240,10 @@ public class DependencyUpdateNotifierPluginTest {
     }
 
     private void initHoverfly(final Hoverfly hoverfly, final String testName, final boolean createResponse, final boolean issuesResponse, final String title) throws IOException {
-        final SimulationSource createSimulationSource = createResponse ? SimulationSource.dsl(getHoverflyRequestMatcherBuilder(testName)
-                .willReturn(ResponseCreators
-                        .success(readResource("hoverfly/response.json"), "application/json"))) : null;
+        final SimulationSource createSimulationSource = createResponse ?
+                                                        SimulationSource.dsl(getHoverflyRequestMatcherBuilder(testName)
+                                                                                     .willReturn(ResponseCreators.success(readResource("hoverfly/response.json"), "application/json"))) :
+                                                        null;
         final SimulationSource[] createSources = createResponse ? Collections.singletonList(createSimulationSource).toArray(new SimulationSource[0]) : new SimulationSource[0];
         hoverfly.simulate(SimulationSource.dsl(getIssuesRequestBuilder(testName, issuesResponse)), createSources);
 
@@ -272,18 +252,18 @@ public class DependencyUpdateNotifierPluginTest {
 
     private void initFailedCreateHoverfly(final Hoverfly hoverfly, final String testName) throws IOException {
         hoverfly.simulate(SimulationSource.dsl(getHoverflyRequestMatcherBuilder(testName)
-                        .willReturn(ResponseCreators.forbidden()),
-                getIssuesRequestBuilder(testName, false)));
+                                                       .willReturn(ResponseCreators.forbidden()),
+                                               getIssuesRequestBuilder(testName, false)));
 
         prepareBuildDir(hoverfly, testName, null);
     }
 
     private void initFailedGetIssuesHoverfly(final Hoverfly hoverfly, final String testName) throws IOException {
         hoverfly.simulate(SimulationSource.dsl(HoverflyDsl.service("gitlab.test")
-                .get("/projects/1/issues")
-                .anyQueryParams()
-                .header(GitlabClient.TOKEN, "token")
-                .willReturn(ResponseCreators.forbidden())));
+                                                       .get("/projects/1/issues")
+                                                       .anyQueryParams()
+                                                       .header(GitlabClient.TOKEN, "token")
+                                                       .willReturn(ResponseCreators.forbidden())));
 
         prepareBuildDir(hoverfly, testName, null);
     }
@@ -295,20 +275,13 @@ public class DependencyUpdateNotifierPluginTest {
                 .anyQueryParams()
                 .header(GitlabClient.TOKEN, "token")
                 .willReturn(ResponseCreators
-                        .success(readResource("hoverfly/" + file + "_issues_response.json"), "application/json"));
+                                    .success(readResource("hoverfly/" + file + "_issues_response.json"), "application/json"));
     }
 
     private void prepareBuildDir(final Hoverfly hoverfly, final String testName, final String title) throws IOException {
         final int proxyPort = hoverfly.getHoverflyConfig().getProxyPort();
-        generateBuildFile(proxyPort, title);
+        setupBuildFile(proxyPort, title);
         copyReportJson(testName);
-    }
-
-    private String readResource(final String name) throws IOException {
-        final InputStream file = getClass()
-                .getClassLoader()
-                .getResourceAsStream(name);
-        return Okio.buffer(Okio.source(file)).readUtf8();
     }
 
     private String readHoverflyRequestBody(final String name) throws IOException {
@@ -316,26 +289,19 @@ public class DependencyUpdateNotifierPluginTest {
         return gitlabIssueAdapter.toJson(issue);
     }
 
-    private void copyReportJson(final String name) throws IOException {
-        final String reportJsonContent = readResource("dependencyUpdates/" + name + ".json");
-        writeFile(reportJson, reportJsonContent);
+    private void setupBuildFile(final int proxyPort, final String title) throws IOException {
+        generateBuildFile(proxyPort, getBuildFileProperties(title));
     }
 
-    private void generateBuildFile(final int proxyPort, final String title) throws IOException {
-        final String buildFileContent = readResource("test.build.gradle")
-                .replaceAll("%title", ObjectUtils.defaultIfNull(title, "title"));
-        writeFile(buildFile, buildFileContent);
-
-        if(proxyPort > 0) {
-            final String propertiesFileContent = readResource("test.gradle.properties")
-                    .replaceAll("%proxyPort", Integer.toString(proxyPort));
-            writeFile(propertiesFile, propertiesFileContent);
-        }
+    private void setupBuildFile(final int proxyPort, final String buildFileName, final String title) throws IOException {
+        generateBuildFile(proxyPort, buildFileName, getBuildFileProperties(title));
     }
 
-    private void writeFile(final File destination, final String content) throws IOException {
-        try(final BufferedWriter output = new BufferedWriter(new FileWriter(destination))) {
-            output.write(content);
-        }
+    private Map<String, String> getBuildFileProperties(final String title) {
+        final Map<String, String> properties = new HashMap<>();
+        properties.put("%title", ObjectUtils.defaultIfNull(title, "title"));
+        return properties;
     }
+
+
 }

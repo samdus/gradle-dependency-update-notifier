@@ -16,10 +16,8 @@ import org.muehlbachler.gradle.plugin.dependencyupdatenotifier.model.gradle.Grad
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -52,19 +50,22 @@ public class GitlabNotifierTask extends BaseTask {
             return;
         }
 
-        final DependencyAnalysis currentIssues = client.getIssues()
-                .stream()
-                .map(this::extractDependencyAnalysis)
-                .reduce(this::mergeDependencyAnalysis)
-                .orElseGet(DependencyAnalysis::new);
-
-        final List<String> outdatedIssues = getOutdatedIssues(dependencies, currentIssues);
-        final String gradleIssue = getGradleIssue(dependencies, currentIssues);
+        final List<String> outdatedIssues = getOutdatedIssues(dependencies);
+        final String gradleIssue = getGradleIssue(dependencies);
         if(!outdatedIssues.isEmpty() || StringUtils.isNotEmpty(gradleIssue)) {
             final GitlabIssue gitlabIssue = buildIssue(outdatedIssues, gradleIssue);
             final GitlabIssue issue = client.createIssue(gitlabIssue);
             getLogger().lifecycle("Created GitLab dependency update issue: {}", issue.getWebUrl());
         }
+    }
+
+    @Override
+    protected DependencyAnalysis getCurrentDependencies() throws IOException {
+        return client.getIssues()
+                .stream()
+                .map(this::extractDependencyAnalysis)
+                .reduce(this::mergeDependencyAnalysis)
+                .orElseGet(DependencyAnalysis::new);
     }
 
     private DependencyAnalysis mergeDependencyAnalysis(final DependencyAnalysis analysis1, final DependencyAnalysis analysis2) {
@@ -143,21 +144,8 @@ public class GitlabNotifierTask extends BaseTask {
         }
     }
 
-    private List<String> getOutdatedIssues(final DependencyAnalysis dependencies, final DependencyAnalysis currentIssues) {
-        final List<Dependency> currentOutdated = currentIssues.getOutdated().getDependencies();
-        final List<Dependency> outdatedDependencies = dependencies.getOutdated().getDependencies().stream()
-                .map(dependency -> {
-                    final Optional<Dependency> foundDependency = currentOutdated.stream()
-                            .filter(currentDependency -> currentDependency.equals(dependency))
-                            .findFirst();
-                    return !foundDependency.isPresent() ? dependency : foundDependency
-                            .map(currentDependency -> StringUtils.compare(dependency.getAvailable().getRelease(), currentDependency.getAvailable().getRelease()) > 0 ? dependency : null)
-                            .orElse(null);
-                })
-                .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(Dependency::getRepresentation))
-                .collect(Collectors.toList());
-        return outdatedDependencies.stream()
+    private List<String> getOutdatedIssues(final DependencyAnalysis dependencies) {
+        return dependencies.getOutdated().getDependencies().stream()
                 .map(dependency -> {
                     String dependencyString = String.format("- [ ] `%s`", dependency.getIssueRepresentation());
                     if(dependency.hasProjectUrl()) {
@@ -168,17 +156,16 @@ public class GitlabNotifierTask extends BaseTask {
                 .collect(Collectors.toList());
     }
 
-    private String getGradleIssue(final DependencyAnalysis dependencies, final DependencyAnalysis currentIssues) {
+    private String getGradleIssue(final DependencyAnalysis dependencies) {
         final GradleConfig gradle = dependencies.getGradle();
         if(!gradle.isUpdateAvailable()) {
             return null;
         }
 
-        final GradleConfig currentGradle = currentIssues.getGradle();
         String newVersion = "";
-        if(gradle.hasCurrentVersionUpdate() && (!currentGradle.hasCurrentVersionUpdate() || StringUtils.compare(gradle.getCurrent().getVersion(), currentGradle.getCurrent().getVersion()) > 0)) {
+        if(gradle.hasCurrentVersionUpdate()) {
             newVersion = gradle.getCurrent().getVersion();
-        } else if(gradle.hasReleaseCandidateVersionUpdate() && (!currentGradle.hasReleaseCandidateVersionUpdate() || StringUtils.compare(gradle.getReleaseCandidate().getVersion(), currentGradle.getReleaseCandidate().getVersion()) > 0)) {
+        } else if(gradle.hasReleaseCandidateVersionUpdate()) {
             newVersion = gradle.getReleaseCandidate().getVersion() + " " + GRADLE_RC_NAME;
         }
 
