@@ -110,14 +110,14 @@ gradlePlugin {
 }
 
 pluginBundle {
-	website = 'https://muehlbachler.org'
+	website = 'https://muhlba91.github.io/gradle-dependency-update-notifier'
 	vcsUrl = 'https://github.com/muhlba91/gradle-dependency-update-notifier'
-	tags = ['versioning', 'libraries', 'update', 'dependencies']
+	tags = ['versioning', 'libraries', 'update', 'dependencies', 'gitlab']
 
 	plugins {
 		gradleDependencyUpdateNotifierPlugin {
 			displayName = project.description
-			description = 'Notifies GitLab about new dependency updates. Requires the com.github.ben-manes.versions plugin!'
+			description = 'Dependency update notifier, parsing the output of the "com.github.ben-manes.versions" plugin!'
 		}
 	}
 }
