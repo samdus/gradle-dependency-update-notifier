@@ -8,7 +8,7 @@ Link to the [Gradle Plugin Registry](https://plugins.gradle.org/plugin/org.muehl
 ## Project Status
 
 [![Build Status](https://travis-ci.org/muhlba91/gradle-dependency-update-notifier.svg?branch=master)](https://travis-ci.org/muhlba91/gradle-dependency-update-notifier)
-[![Gradle Plugin Portal](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/org/muehlbachler/gradle/plugin/org.muehlbachler.gradle.plugin.dependency-update-notifier/maven-metadata.xml.svg?label=Gradle%20Plugin)](https://plugins.gradle.org/plugin/org.muehlbachler.gradle.plugin.dependency-update-notifier)
+[![Gradle Plugin Portal](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/org/muehlbachler/gradle/plugin/dependency-update-notifier/org.muehlbachler.gradle.plugin.dependency-update-notifier.gradle.plugin/maven-metadata.xml.svg?label=Gradle%20Plugin)](https://plugins.gradle.org/plugin/org.muehlbachler.gradle.plugin.dependency-update-notifier)
 [![Documentation](https://img.shields.io/badge/docs-latest-yellow.svg)](https://muhlba91.github.io/gradle-dependency-update-notifier)
 [![CPAN](https://img.shields.io/cpan/l/Config-Augeas.svg)](https://github.com/muhlba91/gradle-dependency-update-notifier/blob/master/LICENSE)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=alert_status)](https://sonarcloud.io/dashboard?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
