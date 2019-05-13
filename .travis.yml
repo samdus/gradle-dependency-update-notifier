@@ -14,7 +14,7 @@ cache:
     - build
 
 before_script:
-  - if [ -z "$TRAVIS_TAG" ]; then
+  - if [ -n "$TRAVIS_TAG" ]; then
     export USE_CI_VERSION="true";
     export CI_VERSION=$TRAVIS_TAG;
     else
