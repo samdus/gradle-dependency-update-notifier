@@ -2,18 +2,25 @@
 
 This Gradle plugin creates GitLab issues for outdated project dependencies found by the [Gradle Versions Plugin](https://github.com/ben-manes/gradle-versions-plugin).
 
-Link to the Gradle Plugin Registry: [https://plugins.gradle.org/plugin/org.muehlbachler.gradle.plugin.dependency-update-notifier](https://plugins.gradle.org/plugin/org.muehlbachler.gradle.plugin.dependency-update-notifier)
+Link to the [Gradle Plugin Registry](https://plugins.gradle.org/plugin/org.muehlbachler.gradle.plugin.dependency-update-notifier).
 
 
 ## Project Status
 
 [![Build Status](https://travis-ci.org/muhlba91/gradle-dependency-update-notifier.svg?branch=master)](https://travis-ci.org/muhlba91/gradle-dependency-update-notifier)
 [![Gradle Plugin Portal](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/org/muehlbachler/gradle/plugin/org.muehlbachler.gradle.plugin.dependency-update-notifier/maven-metadata.xml.svg?label=Gradle%20Plugin)](https://plugins.gradle.org/plugin/org.muehlbachler.gradle.plugin.dependency-update-notifier)
+[![Documentation](https://img.shields.io/badge/docs-latest-yellow.svg)]()
+[![CPAN](https://img.shields.io/cpan/l/Config-Augeas.svg)](https://github.com/muhlba91/gradle-dependency-update-notifier/blob/master/LICENSE)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=alert_status)](https://sonarcloud.io/dashboard?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=security_rating)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
 [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
 [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
 [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
+
+
+## Documentation
+
+The documentation can be found [here]().
 
 
 ## Usage
@@ -45,40 +52,6 @@ buildscript {
   }
 }
 ```
-
-
-## Configuration
-
-The following configuration block is **required**.
-
-```groovy
-dependencyUpdateNotifier {
-  json =  "build/dependencyUpdates/report.json"
-  
-  gitlab {
-    url = "GitLab URL"
-    projectId = 0
-    token = "GitLab Private Token"
-    label = "label1,label2"
-    title = "Dependency Updates (%count)"
-  }
-}
-```
-
-The value provided in `gitlab.label` corresponds to the labels set on the generated issue.
-
-The value provided in `gitlab.title` is the generated issues's title and can interpolate the number of available updates through `%count`.
-
-
-## Tasks
-
-The plugin comes with a task which publishes the issue to GitLab:
-
-```
-./gradlew gitlabDependencyUpdateNotifier
-``` 
-
-**Attention!** Make sure to *execute the versions plugin task before*.
 
 
 ## Contributions
