@@ -56,13 +56,7 @@ public class GitlabNotifierTask extends BaseTask {
                 .stream()
                 .map(this::extractDependencyAnalysis)
                 .reduce(this::mergeDependencyAnalysis)
-                .orElseGet(() -> {
-                    final Dependencies outdated = new Dependencies();
-                    final GradleConfig gradle = new GradleConfig();
-                    return new DependencyAnalysis()
-                            .setOutdated(outdated)
-                            .setGradle(gradle);
-                });
+                .orElseGet(DependencyAnalysis::new);
 
         final List<String> outdatedIssues = getOutdatedIssues(dependencies, currentIssues);
         final String gradleIssue = getGradleIssue(dependencies, currentIssues);
@@ -94,11 +88,9 @@ public class GitlabNotifierTask extends BaseTask {
     }
 
     private DependencyAnalysis extractDependencyAnalysis(final GitlabIssue gitlabIssue) {
-        final Dependencies outdated = new Dependencies();
-        final GradleConfig gradle = new GradleConfig();
-        final DependencyAnalysis dependencyAnalysis = new DependencyAnalysis()
-                .setOutdated(outdated)
-                .setGradle(gradle);
+        final DependencyAnalysis dependencyAnalysis = new DependencyAnalysis();
+        final Dependencies outdated = dependencyAnalysis.getOutdated();
+        final GradleConfig gradle = dependencyAnalysis.getGradle();
 
         Arrays.stream(gitlabIssue.getDescription().split("\n"))
                 .filter(StringUtils::isNotEmpty)

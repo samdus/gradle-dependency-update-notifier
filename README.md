@@ -53,7 +53,7 @@ The following configuration block is **required**.
 
 ```groovy
 dependencyUpdateNotifier {
-  json =  "/path/to/report.json"
+  json =  "build/dependencyUpdates/report.json"
   
   gitlab {
     url = "GitLab URL"

@@ -179,11 +179,20 @@ jacocoTestCoverageVerification {
 				minimum = 0.8
 			}
 		}
+
+		rule {
+			limit {
+				element = 'BUNDLE'
+				counter = 'INSTRUCTION'
+				excludes = ['org.muehlbachler.gradle.plugin.dependencyupdatenotifier.model.*']
+				minimum = 0.4
+			}
+		}
 	}
 }
 
 printcoverage {
-	coverageType = 'LINE'
+	coverageType = 'INSTRUCTION'
 }
 
 lombok {

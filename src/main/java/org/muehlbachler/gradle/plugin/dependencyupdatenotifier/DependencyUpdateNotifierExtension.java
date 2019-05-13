@@ -14,7 +14,7 @@ public class DependencyUpdateNotifierExtension {
 
     @NonNull Project project;
     GitlabNotifierConfig gitlab;
-    String json;
+    String json = "build/dependencyUpdates/report.json";
 
     GitlabNotifierConfig gitlab(final Closure closure) {
         gitlab = new GitlabNotifierConfig();
