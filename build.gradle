@@ -36,6 +36,8 @@ buildscript {
 
         sonarqubePluginVersion = '2.7.1'
         printCoverageVersion = '2.0.0'
+        versionsPluginVersion = '0.21.0'
+        deblibsPluginVersion = '2.0.0'
 
         gradlePublishPluginVersion = '0.10.1'
     }
@@ -52,6 +54,8 @@ buildscript {
         classpath("io.franzbecker:gradle-lombok:${lombokPluginVersion}")
         classpath("org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:${sonarqubePluginVersion}")
         classpath("gradle.plugin.de.jansauer.printcoverage:printcoverage:${printCoverageVersion}")
+        classpath("com.github.ben-manes:gradle-versions-plugin:${versionsPluginVersion}")
+        classpath("com.hellofresh.gradle:deblibs:${deblibsPluginVersion}")
 
         classpath("com.gradle.publish:plugin-publish-plugin:${gradlePublishPluginVersion}")
     }
@@ -70,6 +74,8 @@ apply plugin: 'io.franzbecker.gradle-lombok'
 apply plugin: 'org.sonarqube'
 apply plugin: 'de.jansauer.printcoverage'
 apply plugin: 'maven-publish'
+apply plugin: 'com.github.ben-manes.versions'
+apply plugin: 'com.hellofresh.gradle.deblibs'
 
 targetCompatibility = 1.9
 sourceCompatibility = 1.9
@@ -122,6 +128,33 @@ pluginBundle {
         }
     }
 }
+
+// dependency updates
+dependencyUpdates {
+    outputFormatter = 'json'
+
+    resolutionStrategy {
+        componentSelection { rules ->
+            rules.all { ComponentSelection selection ->
+                boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview', 'b', 'ea'].any { qualifier ->
+                    selection.candidate.version ==~ /(?i).*[.-]$qualifier[.\d-+]*/
+                }
+                if (rejected) {
+                    selection.reject('Release candidate')
+                }
+            }
+        }
+    }
+}
+
+// deblibs
+ext.dependencyUpdatesGithubToken = System.env.GITHUB_TOKEN ?: ''
+deblibs {
+    projectName = project.description
+    githubRepo = 'muhlba91/gradle-dependency-update-notifier'
+    githubToken = dependencyUpdatesGithubToken
+}
+createGithubIssue.dependsOn dependencyUpdates
 
 // enable JUnit 5
 test {

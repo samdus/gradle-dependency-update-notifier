@@ -39,6 +39,10 @@ jobs:
       name: Sonarqube
       if: branch = master AND NOT type = pull_request
       script: ./gradlew sonarqube -x test
+    - stage: Analysis
+      name: Gradle Dependency Updates
+      if: env(TRAVIS_EVENT_TYPE) = cron
+      script: ./gradlew createGithubIssue
     - stage: Release
       name: Publish to Gradle
       if: tag IS present
