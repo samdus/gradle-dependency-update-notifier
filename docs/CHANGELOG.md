@@ -1,6 +1,10 @@
 # CHANGELOG
 
 ## 1.3.0-SNAPSHOT
+- **others**
+  - use JDK/compatibility target 8/1.8instead of 10/1.9
+  - update Gradle to 5.4.1
+  - add synk vulnerability check
 
 ## 1.2.0
 - **bugfixes**
