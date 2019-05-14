@@ -16,6 +16,7 @@ Link to the [Gradle Plugin Registry](https://plugins.gradle.org/plugin/org.muehl
 [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
 [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
 [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=org.muehlbachler.gradle.plugin.dependency-update-notifier&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=org.muehlbachler.gradle.plugin.dependency-update-notifier)
+[![Known Vulnerabilities](https://snyk.io/test/github/muhlba91/gradle-dependency-update-notifier/badge.svg?targetFile=build.gradle)](https://snyk.io/test/github/muhlba91/gradle-dependency-update-notifier?targetFile=build.gradle)
 
 
 ## Documentation
