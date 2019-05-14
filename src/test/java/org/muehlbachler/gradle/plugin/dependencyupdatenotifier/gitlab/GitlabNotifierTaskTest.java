@@ -46,6 +46,17 @@ public class GitlabNotifierTaskTest extends TestBase {
     }
 
     @Test
+    void shouldCreateSimpleIssueWithMilestoneVersion(final Hoverfly hoverfly) throws IOException {
+        initHoverfly(hoverfly, "shouldCreateSimpleIssueWithMilestoneVersion");
+
+        final BuildResult result = executeRunner(GitlabNotifierTask.NAME);
+        Assertions.assertThat(result.task(":" + GitlabNotifierTask.NAME))
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("outcome", TaskOutcome.SUCCESS);
+        hoverfly.verifyAll();
+    }
+
+    @Test
     void shouldCreateSimpleIssueDefaultPath(final Hoverfly hoverfly) throws IOException {
         final Path directory = testProjectDir.resolve("build/dependencyUpdates/");
         Files.createDirectories(directory);
@@ -242,7 +253,7 @@ public class GitlabNotifierTaskTest extends TestBase {
     private void initHoverfly(final Hoverfly hoverfly, final String testName, final boolean createResponse, final boolean issuesResponse, final String title) throws IOException {
         final SimulationSource createSimulationSource = createResponse ?
                                                         SimulationSource.dsl(getHoverflyRequestMatcherBuilder(testName)
-                                                                                     .willReturn(ResponseCreators.created())) :
+                                                                                     .willReturn(ResponseCreators.success(readResource("hoverfly/response.json"), "application/json"))) :
                                                         null;
         final SimulationSource[] createSources = createResponse ? Collections.singletonList(createSimulationSource).toArray(new SimulationSource[0]) : new SimulationSource[0];
         hoverfly.simulate(SimulationSource.dsl(getIssuesRequestBuilder(testName, issuesResponse)), createSources);
