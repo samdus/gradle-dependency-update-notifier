@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 1.3.0-SNAPSHOT
+
 ## 1.2.0
 - **bugfixes**
   - issue [#7](https://github.com/muhlba91/gradle-dependency-update-notifier/issues/7): check for correct GitLab API status code
