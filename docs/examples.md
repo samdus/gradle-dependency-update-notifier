@@ -38,12 +38,12 @@ dependencyUpdateNotifier {
 gitlabDependencyUpdateNotifier.dependsOn dependencyUpdates
 ```
 
-Replace `$version` with the latest plugin version and to run:
+Replace `$version` with the latest plugin version and to run
 
 ```
 gradle gitlabDependencyUpdateNotifier
 ```
 
-This results in an issue being created:
+to create an issue looking like:
 
 ![Created Issue](images/issue.png)

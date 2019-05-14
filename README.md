@@ -56,13 +56,13 @@ buildscript {
 
 ### GitLab Issue Notifier
 
-After configuring the plugin execute:
+After configuring the plugin and executing `dependencyUpdates` from the *Versions plugin*, you can run
 
 ```
 gradle gitlabDependencyUpdateNotifier
 ```
 
-This will create an issue like:
+to create an issue like:
 
 ![Created Issue](docs/images/issue.png)
 
