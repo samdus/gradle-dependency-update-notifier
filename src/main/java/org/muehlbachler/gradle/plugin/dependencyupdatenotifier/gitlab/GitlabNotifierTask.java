@@ -80,7 +80,7 @@ public class GitlabNotifierTask extends BaseTask {
         final List<Dependency> analysis1Dependencies = analysis1.getOutdated().getDependencies().stream()
                 .map(dependency -> analysis2Dependencies.stream()
                         .filter(dependency2 -> dependency2.equals(dependency))
-                        .findFirst().filter(dependency2 -> StringUtils.compare(dependency.getAvailable().getRelease(), dependency2.getAvailable().getRelease()) < 0)
+                        .findFirst().filter(dependency2 -> StringUtils.compare(dependency.getAvailable().getNewRelease(), dependency2.getAvailable().getNewRelease()) < 0)
                         .orElse(dependency))
                 .collect(Collectors.toList());
         analysis2.getOutdated().getDependencies().addAll(analysis1Dependencies);

@@ -66,7 +66,7 @@ public class GitlabClient extends BaseClient {
                 .build();
         final Response response = getClient().newCall(request).execute();
         final int statusCode = response.code();
-        if(statusCode != HttpURLConnection.HTTP_OK || Objects.isNull(response.body())) {
+        if((statusCode != HttpURLConnection.HTTP_CREATED && statusCode != HttpURLConnection.HTTP_OK) || Objects.isNull(response.body())) {
             throw new IllegalArgumentException(String.format("Could not create GitLab issue: %s, %d", config.getUrl(), statusCode));
         }
         final GitlabIssue createdIssue = issueAdapter.fromJson(response.body().source());

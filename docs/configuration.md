@@ -15,7 +15,7 @@ To configure the GitLab notifier, you **must** configure the `gitlab` sub-block 
 
 | Property | Description |
 |----------|-------------|
-| url | GitLab server URL |
+| url | GitLab API URL |
 | projectId | GitLab's project ID to post issues to |
 | token | private authentication token for GitLab |
 | label | comma-delimited labels used to create and retrieve issues |

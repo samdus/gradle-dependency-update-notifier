@@ -242,7 +242,7 @@ public class GitlabNotifierTaskTest extends TestBase {
     private void initHoverfly(final Hoverfly hoverfly, final String testName, final boolean createResponse, final boolean issuesResponse, final String title) throws IOException {
         final SimulationSource createSimulationSource = createResponse ?
                                                         SimulationSource.dsl(getHoverflyRequestMatcherBuilder(testName)
-                                                                                     .willReturn(ResponseCreators.success(readResource("hoverfly/response.json"), "application/json"))) :
+                                                                                     .willReturn(ResponseCreators.created())) :
                                                         null;
         final SimulationSource[] createSources = createResponse ? Collections.singletonList(createSimulationSource).toArray(new SimulationSource[0]) : new SimulationSource[0];
         hoverfly.simulate(SimulationSource.dsl(getIssuesRequestBuilder(testName, issuesResponse)), createSources);

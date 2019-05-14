@@ -24,6 +24,6 @@ public class Dependency {
     }
 
     public String getIssueRepresentation() {
-        return String.format("%s:(%s -> %s)", getRepresentation(), version, available.getRelease());
+        return String.format("%s:(%s -> %s)", getRepresentation(), version, available.getNewRelease());
     }
 }
