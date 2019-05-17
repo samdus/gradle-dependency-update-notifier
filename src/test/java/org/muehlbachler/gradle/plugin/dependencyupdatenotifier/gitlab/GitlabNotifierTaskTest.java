@@ -252,9 +252,9 @@ public class GitlabNotifierTaskTest extends TestBase {
 
     private void initHoverfly(final Hoverfly hoverfly, final String testName, final boolean createResponse, final boolean issuesResponse, final String title) throws IOException {
         final SimulationSource createSimulationSource = createResponse ?
-                                                        SimulationSource.dsl(getHoverflyRequestMatcherBuilder(testName)
-                                                                                     .willReturn(ResponseCreators.success(readResource("hoverfly/response.json"), "application/json"))) :
-                                                        null;
+                SimulationSource.dsl(getHoverflyRequestMatcherBuilder(testName)
+                        .willReturn(ResponseCreators.success(readResource("hoverfly/response.json"), "application/json"))) :
+                null;
         final SimulationSource[] createSources = createResponse ? Collections.singletonList(createSimulationSource).toArray(new SimulationSource[0]) : new SimulationSource[0];
         hoverfly.simulate(SimulationSource.dsl(getIssuesRequestBuilder(testName, issuesResponse)), createSources);
 
@@ -263,18 +263,18 @@ public class GitlabNotifierTaskTest extends TestBase {
 
     private void initFailedCreateHoverfly(final Hoverfly hoverfly, final String testName) throws IOException {
         hoverfly.simulate(SimulationSource.dsl(getHoverflyRequestMatcherBuilder(testName)
-                                                       .willReturn(ResponseCreators.forbidden()),
-                                               getIssuesRequestBuilder(testName, false)));
+                        .willReturn(ResponseCreators.forbidden()),
+                getIssuesRequestBuilder(testName, false)));
 
         prepareBuildDir(hoverfly, testName, null);
     }
 
     private void initFailedGetIssuesHoverfly(final Hoverfly hoverfly, final String testName) throws IOException {
         hoverfly.simulate(SimulationSource.dsl(HoverflyDsl.service("gitlab.test")
-                                                       .get("/projects/1/issues")
-                                                       .anyQueryParams()
-                                                       .header(GitlabClient.TOKEN, "token")
-                                                       .willReturn(ResponseCreators.forbidden())));
+                .get("/projects/1/issues")
+                .anyQueryParams()
+                .header(GitlabClient.TOKEN, "token")
+                .willReturn(ResponseCreators.forbidden())));
 
         prepareBuildDir(hoverfly, testName, null);
     }
@@ -286,7 +286,7 @@ public class GitlabNotifierTaskTest extends TestBase {
                 .anyQueryParams()
                 .header(GitlabClient.TOKEN, "token")
                 .willReturn(ResponseCreators
-                                    .success(readResource("hoverfly/" + file + "_issues_response.json"), "application/json"));
+                        .success(readResource("hoverfly/" + file + "_issues_response.json"), "application/json"));
     }
 
     private void prepareBuildDir(final Hoverfly hoverfly, final String testName, final String title) throws IOException {
