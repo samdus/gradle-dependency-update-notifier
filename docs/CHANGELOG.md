@@ -1,6 +1,9 @@
 # CHANGELOG
 
 ## 1.4.0-SNAPSHOT
+- **others**
+  - update dependencies
+  - update Gradle to 5.6.4
 
 ## 1.3.0
 - **others**
