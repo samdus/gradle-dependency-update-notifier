@@ -12,6 +12,7 @@ import org.gradle.api.logging.Logger;
 import org.muehlbachler.gradle.plugin.dependencyupdatenotifier.BaseClient;
 import org.muehlbachler.gradle.plugin.dependencyupdatenotifier.model.gitlab.GitlabNotifierConfig;
 import org.muehlbachler.gradle.plugin.dependencyupdatenotifier.model.gitlab.issue.GitlabIssue;
+import org.muehlbachler.gradle.plugin.dependencyupdatenotifier.model.gitlab.issue.GitlabIssuePostFix;
 
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
@@ -29,6 +30,7 @@ public class GitlabClient extends BaseClient {
 
     JsonAdapter<List<GitlabIssue>> issueListAdapter;
     JsonAdapter<GitlabIssue> issueAdapter;
+    JsonAdapter<GitlabIssuePostFix> issuePostFixAdapter;
 
     public GitlabClient(final GitlabNotifierConfig config, final Logger logger) {
         this.logger = logger;
@@ -38,6 +40,7 @@ public class GitlabClient extends BaseClient {
         final Moshi moshi = new Moshi.Builder().build();
         issueListAdapter = moshi.adapter(gitlabIssueListType);
         issueAdapter = moshi.adapter(GitlabIssue.class);
+        issuePostFixAdapter = moshi.adapter(GitlabIssuePostFix.class);
 
         getRequestBuilder()
                 .addHeader(TOKEN, config.getToken());
@@ -58,7 +61,7 @@ public class GitlabClient extends BaseClient {
     }
 
     public GitlabIssue createIssue(final GitlabIssue issue) throws IOException {
-        final String json = issueAdapter.toJson(issue);
+        final String json = issuePostFixAdapter.toJson(new GitlabIssuePostFix(issue));
         final RequestBody requestBody = RequestBody.create(JSON, json);
         final Request request = getRequestBuilder()
                 .url(String.format("%s/projects/%s/issues", config.getUrl(), config.getProjectId()))
